@@ -1,0 +1,622 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SACCO &amp; Chama Manager | Demo by DigiExperts</title>
+<meta name="description" content="A working demo of a SACCO and chama manager: members, savings, loans, repayment schedules and statements. Designed and developed by DigiExperts.">
+<style>
+:root{
+  --ink:#0b0b0b; --ink2:#161616; --yel:#ffd000; --yel2:#ffaa00; --bg:#f4f4f2; --card:#fff; --line:#e6e6e2;
+  --mut:#6b6b66; --ok:#0a7a32; --bad:#c4122f; --warn:#b36b00; --r:16px;
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;font-family:Inter,system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;background:var(--bg);color:var(--ink);line-height:1.45}
+button,input,select,textarea{font:inherit;color:inherit}
+h1,h2,h3{margin:0;line-height:1.2}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+a{color:inherit}
+
+/* layout */
+.app{display:grid;grid-template-columns:250px 1fr;min-height:100vh}
+.side{background:var(--ink);color:#fff;padding:20px 14px;position:sticky;top:0;height:100vh;display:flex;flex-direction:column;gap:6px}
+.brand{display:flex;align-items:center;gap:10px;padding:4px 8px 16px;border-bottom:1px solid #2a2a2a;margin-bottom:10px}
+.brand .mark{width:38px;height:38px;border-radius:10px;background:var(--yel);display:grid;place-items:center;color:#000;font-weight:900}
+.brand b{display:block;font-size:15px}
+.brand small{color:#9a9a94;font-size:11px}
+.nav button{all:unset;box-sizing:border-box;width:100%;display:flex;align-items:center;gap:12px;padding:11px 12px;border-radius:12px;color:#cfcfc9;cursor:pointer;font-size:14.5px;font-weight:500}
+.nav button:hover{background:#1d1d1d;color:#fff}
+.nav button[aria-current="page"]{background:var(--yel);color:#000;font-weight:700}
+.nav button:focus-visible{outline:2px solid var(--yel);outline-offset:2px}
+.nav svg{width:19px;height:19px;flex:none}
+.side .cta{margin-top:auto;background:#1b1b1b;border:1px solid #2c2c2c;border-radius:14px;padding:14px;font-size:12.5px;color:#cfcfc9}
+.side .cta b{color:#fff;display:block;margin-bottom:4px;font-size:13.5px}
+.main{min-width:0;display:flex;flex-direction:column}
+.demo-bar{background:var(--ink);color:#fff;font-size:12.5px;padding:8px 18px;display:flex;gap:10px;align-items:center;justify-content:center;flex-wrap:wrap;text-align:center}
+.demo-bar b{color:var(--yel)}
+.top{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:22px 28px 6px;flex-wrap:wrap}
+.top h1{font-size:26px}
+.top p{margin:4px 0 0;color:var(--mut);font-size:14px}
+.wrap{padding:18px 28px 90px;flex:1}
+footer{padding:18px 28px 28px;color:var(--mut);font-size:12.5px;border-top:1px solid var(--line)}
+
+/* components */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;border:0;border-radius:999px;padding:10px 18px;font-weight:700;font-size:14px;cursor:pointer;background:var(--ink);color:#fff;text-decoration:none;white-space:nowrap}
+.btn:hover{background:#2a2a2a}
+.btn.y{background:var(--yel);color:#000}.btn.y:hover{background:var(--yel2)}
+.btn.o{background:#fff;color:var(--ink);border:2px solid var(--ink)}.btn.o:hover{background:var(--ink);color:#fff}
+.btn.g{background:#1faa4b;color:#fff}.btn.g:hover{background:#0a7a32}
+.btn.s{padding:6px 12px;font-size:12.5px}
+.btn.d{background:#fff;color:var(--bad);border:1.5px solid var(--bad)}.btn.d:hover{background:var(--bad);color:#fff}
+.btn:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
+.card{background:var(--card);border-radius:var(--r);padding:18px;box-shadow:0 1px 2px rgba(0,0,0,.04),0 6px 20px rgba(0,0,0,.04)}
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px}
+.stat small{color:var(--mut);font-size:12.5px;display:block}
+.stat b{display:block;font-size:24px;margin-top:4px;letter-spacing:-.3px}
+.stat i{font-style:normal;font-size:12px;color:var(--mut)}
+.stat.y{background:var(--ink);color:#fff}.stat.y small,.stat.y i{color:#b8b8b2}.stat.y b{color:var(--yel)}
+.grid2{display:grid;grid-template-columns:1.4fr 1fr;gap:14px;margin-top:14px}
+.row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.row.sp{justify-content:space-between}
+.tbl-wrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:14px}
+th{font-size:11.5px;text-transform:uppercase;letter-spacing:.5px;color:var(--mut);text-align:left;padding:10px 12px;border-bottom:1px solid var(--line);white-space:nowrap}
+td{padding:11px 12px;border-bottom:1px solid #efefeb;vertical-align:middle}
+tr:last-child td{border-bottom:0}
+td.n,th.n{text-align:right;font-variant-numeric:tabular-nums}
+.badge{display:inline-block;padding:3px 10px;border-radius:999px;font-size:12px;font-weight:700}
+.b-ok{background:#e3f6e9;color:var(--ok)}.b-bad{background:#fde6ea;color:var(--bad)}.b-warn{background:#fff1d6;color:var(--warn)}.b-mut{background:#ececE8;color:#555}
+.empty{padding:30px;text-align:center;color:var(--mut)}
+label{display:block;font-size:13px;font-weight:600;margin-bottom:5px}
+input,select,textarea{width:100%;border:1.5px solid #d9d9d3;border-radius:12px;padding:10px 12px;background:#fff;font-size:14.5px}
+input:focus,select:focus,textarea:focus{border-color:var(--ink)}
+.f{display:grid;grid-template-columns:1fr 1fr;gap:12px}.f .full{grid-column:1/-1}
+.hint{font-size:12.5px;color:var(--mut);margin-top:4px}
+.err{color:var(--bad);font-size:13px;margin:8px 0 0;min-height:18px}
+.chk{display:flex;gap:8px;align-items:flex-start;font-weight:500}.chk input{width:auto;margin-top:3px}
+dialog{border:0;border-radius:20px;padding:0;width:min(720px,calc(100vw - 24px));max-height:92vh;box-shadow:0 30px 80px rgba(0,0,0,.35)}
+dialog::backdrop{background:rgba(0,0,0,.55)}
+.dlg-h{display:flex;justify-content:space-between;align-items:center;padding:18px 22px;border-bottom:1px solid var(--line);position:sticky;top:0;background:#fff;z-index:1}
+.dlg-h h2{font-size:19px}
+.x{all:unset;cursor:pointer;width:34px;height:34px;display:grid;place-items:center;border-radius:50%;font-size:22px}.x:hover{background:var(--bg)}
+.dlg-b{padding:20px 22px 24px;overflow:auto;max-height:calc(92vh - 70px)}
+.toast{position:fixed;left:50%;bottom:78px;transform:translateX(-50%);background:var(--ink);color:#fff;padding:12px 18px;border-radius:12px;font-size:14px;z-index:50;box-shadow:0 10px 30px rgba(0,0,0,.3);max-width:92vw}
+.bar{height:9px;border-radius:9px;background:#ececE8;overflow:hidden}.bar i{display:block;height:100%;background:var(--yel2)}
+.chart{width:100%;height:auto}
+.list{list-style:none;margin:0;padding:0}.list li{display:flex;justify-content:space-between;gap:10px;padding:9px 0;border-bottom:1px solid #efefeb;font-size:14px}.list li:last-child{border:0}
+.list small{color:var(--mut);display:block}
+h3.sec{font-size:16px;margin-bottom:10px}
+.sumbox{background:var(--ink);color:#fff;border-radius:14px;padding:16px;display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin:14px 0}
+.sumbox small{color:#b8b8b2;display:block;font-size:12px}.sumbox b{font-size:19px;color:var(--yel)}
+.tabs-m{display:none}
+
+/* mobile */
+@media (max-width:900px){
+  .app{display:block}
+  .side{display:none}
+  .tabs-m{display:flex;position:fixed;left:0;right:0;bottom:0;background:var(--ink);z-index:40;padding:6px 4px calc(6px + env(safe-area-inset-bottom));overflow-x:auto;gap:2px}
+  .tabs-m button{all:unset;flex:1 0 auto;min-width:64px;display:flex;flex-direction:column;align-items:center;gap:2px;padding:6px 8px;color:#bdbdb7;font-size:11px;border-radius:10px;cursor:pointer}
+  .tabs-m button[aria-current="page"]{color:#000;background:var(--yel);font-weight:700}
+  .tabs-m svg{width:20px;height:20px}
+  .top{padding:16px 16px 4px}.top h1{font-size:22px}
+  .wrap{padding:14px 16px 100px}
+  footer{padding:16px}
+  .grid2{grid-template-columns:1fr}
+  .cards{grid-template-columns:1fr 1fr;gap:10px}
+  .card{padding:14px}
+  .stat b{font-size:19px}
+  .f{grid-template-columns:1fr}
+  .toast{bottom:90px}
+}
+
+/* print: only the statement */
+#printArea{display:none}
+@media print{
+  body{background:#fff}
+  .app,.tabs-m,.toast,dialog{display:none!important}
+  #printArea{display:block;padding:24px;font-size:13px}
+  #printArea table{font-size:12px}
+  #printArea .sumbox{background:#fff;color:#000;border:1px solid #000}
+  #printArea .sumbox b{color:#000}#printArea .sumbox small{color:#333}
+}
+</style>
+</head>
+<body>
+
+<div class="app">
+  <aside class="side" aria-label="Sidebar">
+    <div class="brand">
+      <div class="mark" aria-hidden="true">S</div>
+      <div><b id="grpName">Chama Manager</b><small>SACCO &amp; Chama Manager</small></div>
+    </div>
+    <nav class="nav" id="nav" aria-label="Main"></nav>
+    <div class="cta">
+      <b>Want this for your group?</b>
+      DigiExperts builds custom SACCO and chama systems.
+      <div style="margin-top:10px"><a class="btn y s wa" href="#" target="_blank" rel="noopener noreferrer">Chat on WhatsApp</a></div>
+    </div>
+  </aside>
+
+  <div class="main">
+    <div class="demo-bar"><span><b>DEMO</b> by DigiExperts. Data stays in your own browser and is never sent anywhere.</span>
+      <a class="btn y s wa" href="#" target="_blank" rel="noopener noreferrer">Get this for your group</a></div>
+    <header class="top">
+      <div><h1 id="pageTitle">Dashboard</h1><p id="pageSub"></p></div>
+      <div class="row" id="pageActions"></div>
+    </header>
+    <main class="wrap" id="view" tabindex="-1"></main>
+    <footer>
+      Designed &amp; developed by <a href="https://digixperts.freedev.app/" target="_blank" rel="noopener noreferrer"><b>DigiExperts</b></a>
+      &nbsp;·&nbsp; Call / WhatsApp <a href="tel:+254715273822">0715 273 822</a>
+      &nbsp;·&nbsp; This is a demonstration. Not a licensed financial system.
+    </footer>
+  </div>
+</div>
+
+<nav class="tabs-m" id="navM" aria-label="Main mobile"></nav>
+
+<dialog id="dlg" aria-labelledby="dlgTitle">
+  <div class="dlg-h"><h2 id="dlgTitle"></h2><button class="x" id="dlgX" aria-label="Close">&times;</button></div>
+  <div class="dlg-b" id="dlgBody"></div>
+</dialog>
+<div id="toastBox" aria-live="polite"></div>
+<div id="printArea" aria-hidden="true"></div>
+
+<script>
+"use strict";
+/* =====================================================================
+   SACCO & Chama Manager (demo) - plain HTML/CSS/JavaScript, no libraries.
+   Data is stored in this browser's localStorage only.
+   ===================================================================== */
+const WA_NUMBER = "254715273822";
+const WA_TEXT = "Hello DigiExperts, I tried the SACCO/Chama Manager demo and I would like a similar system for my group. Kindly share more information.";
+const KEY = "digiexperts.sacco.demo.v1";
+
+/* ---------- helpers ---------- */
+const $ = (s, r = document) => r.querySelector(s);
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+const uid = () => Math.random().toString(36).slice(2, 10);
+const kes = n => "KES " + Math.round(Number(n) || 0).toLocaleString("en-KE");
+const kes2 = n => "KES " + (Number(n) || 0).toLocaleString("en-KE", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+const pad = n => String(n).padStart(2, "0");
+const ymd = d => d.getFullYear() + "-" + pad(d.getMonth() + 1) + "-" + pad(d.getDate());
+const parse = s => new Date(s + "T00:00:00");
+const today = () => ymd(new Date());
+const fdate = s => s ? parse(s).toLocaleDateString("en-KE", { day: "numeric", month: "short", year: "numeric" }) : "-";
+function addMonths(s, n) {
+  const d = parse(s), day = d.getDate(); d.setDate(1); d.setMonth(d.getMonth() + n);
+  const last = new Date(d.getFullYear(), d.getMonth() + 1, 0).getDate(); d.setDate(Math.min(day, last)); return ymd(d);
+}
+const validPhone = p => /^(?:\+?254|0)[17]\d{8}$/.test(String(p).replace(/[\s-]/g, ""));
+const waUrl = () => `https://wa.me/${WA_NUMBER}?text=${encodeURIComponent(WA_TEXT)}`;
+
+/* ---------- state ---------- */
+const defaults = () => ({
+  settings: { name: "Umoja Chama (Demo)", rate: 12, method: "reducing", multiplier: 3, monthly: 2000 },
+  members: [], contributions: [], loans: [], repayments: []
+});
+let S = load();
+function load() {
+  try { const raw = localStorage.getItem(KEY); if (raw) { const o = JSON.parse(raw); return Object.assign(defaults(), o, { settings: Object.assign(defaults().settings, o.settings) }); } } catch (e) {}
+  return defaults();
+}
+function save() { try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) { toast("Could not save: browser storage is unavailable."); } }
+
+/* ---------- loan maths ---------- */
+function schedule(P, annual, n, method, start) {
+  P = Number(P); n = Math.round(Number(n)); annual = Number(annual);
+  if (!(P > 0) || !(n > 0)) return [];
+  const rows = []; let bal = P;
+  if (method === "flat") {
+    const interest = P * annual / 100 * n / 12, pi = interest / n, pp = P / n;
+    for (let i = 1; i <= n; i++) { bal -= pp; rows.push({ n: i, due: addMonths(start, i), principal: pp, interest: pi, total: pp + pi, balance: Math.max(0, bal) }); }
+  } else {
+    const r = annual / 12 / 100;
+    const emi = r > 0 ? P * r * Math.pow(1 + r, n) / (Math.pow(1 + r, n) - 1) : P / n;
+    for (let i = 1; i <= n; i++) {
+      const int = bal * r, pr = i === n ? bal : emi - int; bal -= pr;
+      rows.push({ n: i, due: addMonths(start, i), principal: pr, interest: int, total: pr + int, balance: Math.max(0, bal) });
+    }
+  }
+  return rows;
+}
+const sum = (a, f) => a.reduce((t, x) => t + f(x), 0);
+function loanInfo(loan) {
+  const sched = schedule(loan.principal, loan.rate, loan.months, loan.method, loan.date);
+  const payable = sum(sched, r => r.total);
+  const repaid = sum(S.repayments.filter(r => r.loanId === loan.id), r => r.amount);
+  const outstanding = Math.max(0, payable - repaid);
+  let cum = 0, overdue = 0, next = null;
+  const t = today();
+  sched.forEach(r => {
+    cum += r.total; r.paid = repaid + 0.5 >= cum;
+    r.late = !r.paid && r.due < t;
+    if (r.late) overdue++;
+    if (!r.paid && !next) next = r;
+  });
+  const status = outstanding < 0.5 ? "cleared" : overdue ? "overdue" : "active";
+  return { sched, payable, repaid, outstanding, overdue, next, status };
+}
+const memberById = id => S.members.find(m => m.id === id);
+const mName = id => memberById(id)?.name || "(removed)";
+const savingsOf = id => sum(S.contributions.filter(c => c.memberId === id && c.type !== "fine"), c => c.amount);
+const loansOf = id => S.loans.filter(l => l.memberId === id);
+const loanOutstandingOf = id => sum(loansOf(id), l => loanInfo(l).outstanding);
+
+/* ---------- UI plumbing ---------- */
+const ICON = {
+  dash: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="9" rx="1.5"/><rect x="14" y="3" width="7" height="5" rx="1.5"/><rect x="14" y="12" width="7" height="9" rx="1.5"/><rect x="3" y="16" width="7" height="5" rx="1.5"/></svg>',
+  users: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c.6-3.6 3.2-5.5 6.5-5.5s5.9 1.9 6.5 5.5"/><circle cx="17" cy="9" r="2.5"/><path d="M17.5 14.3c2.2.2 3.6 1.7 4 4.2"/></svg>',
+  coin: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M14.8 8.8c-.5-.9-1.5-1.3-2.8-1.3-1.6 0-2.7.8-2.7 2 0 3 5.6 1.5 5.6 4.3 0 1.2-1.2 2.1-2.9 2.1-1.4 0-2.5-.5-3-1.5M12 6v1.5M12 16.9V18.5"/></svg>',
+  loan: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="6" width="19" height="12" rx="2.5"/><circle cx="12" cy="12" r="2.8"/><path d="M6 9.5v.1M18 14.5v.1"/></svg>',
+  calc: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="3" width="14" height="18" rx="2.5"/><path d="M8.5 7.5h7M8.5 12h.1M12 12h.1M15.5 12h.1M8.5 16h.1M12 16h.1M15.5 16h.1"/></svg>',
+  rep: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3h9l4 4v14H6z"/><path d="M14 3v5h5M9 13h7M9 17h5"/></svg>',
+  set: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg>'
+};
+const TABS = [
+  ["dashboard", "Dashboard", "dash"], ["members", "Members", "users"], ["contributions", "Savings", "coin"],
+  ["loans", "Loans", "loan"], ["calculator", "Calculator", "calc"], ["reports", "Reports", "rep"], ["settings", "Settings", "set"]
+];
+let tab = "dashboard";
+
+function toast(msg) {
+  const el = document.createElement("div"); el.className = "toast"; el.textContent = msg; $("#toastBox").appendChild(el);
+  setTimeout(() => el.remove(), 3200);
+}
+const dlg = $("#dlg");
+function openDlg(title, html) { $("#dlgTitle").textContent = title; $("#dlgBody").innerHTML = html; if (!dlg.open) dlg.showModal(); }
+function closeDlg() { if (dlg.open) dlg.close(); }
+$("#dlgX").addEventListener("click", closeDlg);
+dlg.addEventListener("click", e => { if (e.target === dlg) closeDlg(); });
+
+function buildNav() {
+  const mk = (t, i) => `<button data-tab="${t[0]}" ${t[0] === tab ? 'aria-current="page"' : ""}>${ICON[t[2]]}<span>${t[1]}</span></button>`;
+  $("#nav").innerHTML = TABS.map(mk).join(""); $("#navM").innerHTML = TABS.map(mk).join("");
+}
+function go(t) { tab = t; location.hash = t; render(); window.scrollTo(0, 0); }
+document.addEventListener("click", e => {
+  const b = e.target.closest("[data-tab]"); if (b) { go(b.dataset.tab); return; }
+  const a = e.target.closest("[data-act]"); if (a) act(a.dataset.act, a.dataset.id, a);
+});
+window.addEventListener("hashchange", () => { const h = location.hash.slice(1); if (TABS.some(t => t[0] === h) && h !== tab) { tab = h; render(); } });
+
+/* ---------- views ---------- */
+function render() {
+  buildNav();
+  document.querySelectorAll("a.wa").forEach(a => a.href = waUrl());
+  $("#grpName").textContent = S.settings.name;
+  const t = TABS.find(x => x[0] === tab);
+  $("#pageTitle").textContent = t[1] === "Savings" ? "Savings & Contributions" : t[1];
+  const V = { dashboard: vDash, members: vMembers, contributions: vContrib, loans: vLoans, calculator: vCalc, reports: vReports, settings: vSettings }[tab];
+  const out = V(); $("#pageSub").textContent = out.sub || ""; $("#pageActions").innerHTML = out.actions || ""; $("#view").innerHTML = out.html;
+  if (out.after) out.after();
+}
+
+function emptyState(msg, btn) { return `<div class="empty"><p>${msg}</p>${btn || ""}</div>`; }
+const noData = () => !S.members.length;
+
+function vDash() {
+  if (noData()) return { sub: "Welcome. Add members or load the demo data to see the dashboard.", html: `<div class="card">${emptyState("No members yet. Load sample data to explore every feature in one click.", `<button class="btn y" data-act="seed">Load demo data</button> <button class="btn o" data-act="addMember">Add first member</button>`)}</div>` };
+  const total = sum(S.contributions.filter(c => c.type !== "fine"), c => c.amount);
+  const loans = S.loans.map(l => ({ l, i: loanInfo(l) }));
+  const out = sum(loans, x => x.i.outstanding), overdue = loans.filter(x => x.i.status === "overdue").length;
+  const issued = sum(S.loans, l => l.principal);
+  // last 6 months bar chart
+  const months = []; const now = new Date();
+  for (let k = 5; k >= 0; k--) { const d = new Date(now.getFullYear(), now.getMonth() - k, 1); months.push({ key: d.getFullYear() + "-" + pad(d.getMonth() + 1), label: d.toLocaleDateString("en-KE", { month: "short" }), v: 0 }); }
+  S.contributions.forEach(c => { if (c.type === "fine") return; const m = months.find(x => c.date.startsWith(x.key)); if (m) m.v += c.amount; });
+  const max = Math.max(1, ...months.map(m => m.v));
+  const bars = months.map((m, i) => { const h = Math.round(m.v / max * 130), x = 20 + i * 62; return `<rect x="${x}" y="${150 - h}" width="40" height="${h}" rx="8" fill="${i === 5 ? "#ffd000" : "#0b0b0b"}"/><text x="${x + 20}" y="170" text-anchor="middle" font-size="12" fill="#6b6b66">${m.label}</text><text x="${x + 20}" y="${144 - h}" text-anchor="middle" font-size="10.5" fill="#0b0b0b">${m.v ? Math.round(m.v / 1000) + "k" : ""}</text>`; }).join("");
+  const savers = S.members.map(m => ({ m, v: savingsOf(m.id) })).sort((a, b) => b.v - a.v).slice(0, 5);
+  const recent = [
+    ...S.contributions.map(c => ({ d: c.date, t: `${mName(c.memberId)} saved`, a: c.amount, k: "in" })),
+    ...S.repayments.map(r => { const l = S.loans.find(x => x.id === r.loanId); return { d: r.date, t: `${l ? mName(l.memberId) : "?"} repaid loan`, a: r.amount, k: "in" }; }),
+    ...S.loans.map(l => ({ d: l.date, t: `Loan issued to ${mName(l.memberId)}`, a: l.principal, k: "out" }))
+  ].sort((a, b) => b.d.localeCompare(a.d)).slice(0, 7);
+  return {
+    sub: `${S.settings.name} at a glance`,
+    actions: `<button class="btn y" data-act="addContrib">+ Record savings</button><button class="btn" data-act="addLoan">+ New loan</button>`,
+    html: `
+    <div class="cards">
+      <div class="card stat y"><small>Total savings &amp; shares</small><b>${kes(total)}</b><i>${S.members.length} members</i></div>
+      <div class="card stat"><small>Loans issued (all time)</small><b>${kes(issued)}</b><i>${S.loans.length} loans</i></div>
+      <div class="card stat"><small>Loans outstanding</small><b>${kes(out)}</b><i>Still to be repaid</i></div>
+      <div class="card stat"><small>Overdue loans</small><b style="color:${overdue ? "var(--bad)" : "var(--ok)"}">${overdue}</b><i>${overdue ? "Needs follow-up" : "All on time"}</i></div>
+    </div>
+    <div class="grid2">
+      <div class="card"><h3 class="sec">Savings collected, last 6 months</h3>
+        <svg class="chart" viewBox="0 0 400 180" role="img" aria-label="Bar chart of monthly savings">${bars}</svg></div>
+      <div class="card"><h3 class="sec">Top savers</h3><ul class="list">${savers.map(s => `<li><span>${esc(s.m.name)}</span><b>${kes(s.v)}</b></li>`).join("")}</ul></div>
+    </div>
+    <div class="card" style="margin-top:14px"><h3 class="sec">Recent activity</h3>
+      ${recent.length ? `<ul class="list">${recent.map(r => `<li><span>${esc(r.t)}<small>${fdate(r.d)}</small></span><b style="color:${r.k === "in" ? "var(--ok)" : "var(--ink)"}">${r.k === "in" ? "+" : "-"} ${kes(r.a)}</b></li>`).join("")}</ul>` : emptyState("No activity yet.")}</div>`
+  };
+}
+
+function vMembers() {
+  const rows = S.members.map(m => {
+    const sv = savingsOf(m.id), ln = loanOutstandingOf(m.id);
+    return `<tr><td><b>${esc(m.name)}</b><div class="hint">${esc(m.phone)}</div></td><td>${fdate(m.joined)}</td><td class="n">${kes(sv)}</td><td class="n">${ln > 0 ? kes(ln) : "-"}</td>
+      <td class="n" style="white-space:nowrap"><button class="btn s o" data-act="statement" data-id="${m.id}">Statement</button> <button class="btn s o" data-act="editMember" data-id="${m.id}">Edit</button> <button class="btn s d" data-act="delMember" data-id="${m.id}" aria-label="Delete ${esc(m.name)}">Delete</button></td></tr>`;
+  }).join("");
+  return {
+    sub: `${S.members.length} registered member${S.members.length === 1 ? "" : "s"}`,
+    actions: `<button class="btn y" data-act="addMember">+ Add member</button>`,
+    html: `<div class="card tbl-wrap">${S.members.length ? `<table><thead><tr><th>Member</th><th>Joined</th><th class="n">Savings</th><th class="n">Loan balance</th><th class="n">Actions</th></tr></thead><tbody>${rows}</tbody></table>` : emptyState("No members yet.", `<button class="btn y" data-act="addMember">Add member</button> <button class="btn o" data-act="seed">Load demo data</button>`)}</div>`
+  };
+}
+
+let cFilter = { member: "", month: "" };
+function vContrib() {
+  let list = [...S.contributions].sort((a, b) => b.date.localeCompare(a.date));
+  if (cFilter.member) list = list.filter(c => c.memberId === cFilter.member);
+  if (cFilter.month) list = list.filter(c => c.date.startsWith(cFilter.month));
+  const tot = sum(list, c => c.amount);
+  const rows = list.slice(0, 200).map(c => `<tr><td>${fdate(c.date)}</td><td>${esc(mName(c.memberId))}</td><td><span class="badge ${c.type === "fine" ? "b-warn" : "b-mut"}">${esc(c.type)}</span></td><td>${esc(c.ref || "-")}</td><td class="n"><b>${kes(c.amount)}</b></td><td class="n"><button class="btn s d" data-act="delContrib" data-id="${c.id}" aria-label="Delete entry">Delete</button></td></tr>`).join("");
+  return {
+    sub: "Record and review member contributions",
+    actions: `<button class="btn y" data-act="addContrib">+ Record savings</button>`,
+    html: `<div class="card"><div class="f" style="margin-bottom:14px">
+        <div><label for="fm">Member</label><select id="fm" data-filter="member"><option value="">All members</option>${S.members.map(m => `<option value="${m.id}" ${cFilter.member === m.id ? "selected" : ""}>${esc(m.name)}</option>`).join("")}</select></div>
+        <div><label for="fmo">Month</label><input id="fmo" type="month" data-filter="month" value="${cFilter.month}"></div></div>
+      <div class="row sp" style="margin-bottom:8px"><span class="hint">${list.length} entr${list.length === 1 ? "y" : "ies"}</span><b>Total: ${kes(tot)}</b></div>
+      <div class="tbl-wrap">${list.length ? `<table><thead><tr><th>Date</th><th>Member</th><th>Type</th><th>M-Pesa ref</th><th class="n">Amount</th><th class="n"></th></tr></thead><tbody>${rows}</tbody></table>` : emptyState("No contributions found.")}</div></div>`
+  };
+}
+document.addEventListener("input", e => { const f = e.target.dataset?.filter; if (f) { cFilter[f] = e.target.value; render(); const el = $(`[data-filter="${f}"]`); if (el && f === "month") el.focus(); } });
+document.addEventListener("change", e => { const f = e.target.dataset?.filter; if (f === "member") { cFilter.member = e.target.value; render(); } });
+
+function badge(st) { return `<span class="badge ${st === "cleared" ? "b-mut" : st === "overdue" ? "b-bad" : "b-ok"}">${st === "active" ? "On track" : st[0].toUpperCase() + st.slice(1)}</span>`; }
+function vLoans() {
+  const rows = [...S.loans].sort((a, b) => b.date.localeCompare(a.date)).map(l => {
+    const i = loanInfo(l);
+    return `<tr><td><b>${esc(mName(l.memberId))}</b><div class="hint">${esc(l.purpose || "")}</div></td><td>${fdate(l.date)}</td><td class="n">${kes(l.principal)}<div class="hint">${l.months} mo @ ${l.rate}% ${l.method === "flat" ? "flat" : "reducing"}</div></td><td class="n"><b>${kes(i.outstanding)}</b></td><td>${i.next ? fdate(i.next.due) : "-"}</td><td>${badge(i.status)}</td><td class="n"><button class="btn s o" data-act="loanView" data-id="${l.id}">Open</button></td></tr>`;
+  }).join("");
+  return {
+    sub: "Issue loans, track repayments and see schedules",
+    actions: `<button class="btn y" data-act="addLoan">+ New loan</button>`,
+    html: `<div class="card tbl-wrap">${S.loans.length ? `<table><thead><tr><th>Member</th><th>Issued</th><th class="n">Principal</th><th class="n">Outstanding</th><th>Next due</th><th>Status</th><th class="n"></th></tr></thead><tbody>${rows}</tbody></table>` : emptyState("No loans yet.", `<button class="btn y" data-act="addLoan">Issue a loan</button>`)}</div>`
+  };
+}
+
+function vCalc() {
+  return {
+    sub: "Estimate repayments before issuing a loan",
+    html: `<div class="grid2" style="grid-template-columns:minmax(260px,1fr) 1.6fr"><div class="card"><form id="calcF" class="f" onsubmit="return false">
+      <div class="full"><label for="cP">Loan amount (KES)</label><input id="cP" type="number" min="1" value="100000" inputmode="numeric"></div>
+      <div><label for="cR">Interest % per year</label><input id="cR" type="number" min="0" step="0.1" value="${S.settings.rate}"></div>
+      <div><label for="cN">Months</label><input id="cN" type="number" min="1" max="120" value="12"></div>
+      <div><label for="cM">Method</label><select id="cM"><option value="reducing" ${S.settings.method === "reducing" ? "selected" : ""}>Reducing balance</option><option value="flat" ${S.settings.method === "flat" ? "selected" : ""}>Flat rate</option></select></div>
+      <div><label for="cD">Start date</label><input id="cD" type="date" value="${today()}"></div></form>
+      <p class="hint" style="margin-top:12px">Reducing balance charges interest only on what is still owed. Flat rate charges interest on the full amount for the whole term.</p></div>
+      <div class="card" id="calcOut"></div></div>`,
+    after() { const run = () => { const P = +$("#cP").value, R = +$("#cR").value, N = +$("#cN").value, M = $("#cM").value, D = $("#cD").value || today(); calcOut(P, R, N, M, D); }; $("#calcF").addEventListener("input", run); run(); }
+  };
+}
+function calcOut(P, R, N, M, D) {
+  const el = $("#calcOut"); if (!el) return;
+  if (!(P > 0) || !(N >= 1) || R < 0) { el.innerHTML = emptyState("Enter a valid amount, rate and number of months."); return; }
+  const sc = schedule(P, R, N, M, D), tot = sum(sc, r => r.total), int = sum(sc, r => r.interest);
+  el.innerHTML = `<div class="sumbox"><div><small>Monthly instalment</small><b>${kes2(sc[0].total)}</b></div><div><small>Total interest</small><b>${kes(int)}</b></div><div><small>Total payable</small><b>${kes(tot)}</b></div></div>${schedTable(sc)}`;
+}
+function schedTable(sc) {
+  return `<div class="tbl-wrap"><table><thead><tr><th>#</th><th>Due</th><th class="n">Principal</th><th class="n">Interest</th><th class="n">Instalment</th><th class="n">Balance</th>${sc[0] && "paid" in sc[0] ? "<th>Status</th>" : ""}</tr></thead><tbody>${sc.map(r => `<tr><td>${r.n}</td><td>${fdate(r.due)}</td><td class="n">${kes(r.principal)}</td><td class="n">${kes(r.interest)}</td><td class="n"><b>${kes(r.total)}</b></td><td class="n">${kes(r.balance)}</td>${"paid" in r ? `<td>${r.paid ? '<span class="badge b-ok">Paid</span>' : r.late ? '<span class="badge b-bad">Overdue</span>' : '<span class="badge b-mut">Upcoming</span>'}</td>` : ""}</tr>`).join("")}</tbody></table></div>`;
+}
+
+function vReports() {
+  return {
+    sub: "Export your data or print member statements",
+    html: `<div class="cards">
+      <div class="card"><h3 class="sec">Export to CSV</h3><p class="hint">Opens in Excel or Google Sheets.</p><div class="row" style="margin-top:12px"><button class="btn o s" data-act="csv" data-id="members">Members</button><button class="btn o s" data-act="csv" data-id="contributions">Savings</button><button class="btn o s" data-act="csv" data-id="loans">Loans</button><button class="btn o s" data-act="csv" data-id="repayments">Repayments</button></div></div>
+      <div class="card"><h3 class="sec">Member statements</h3><p class="hint">Pick a member to view and print or save as PDF.</p><div style="margin-top:12px"><select id="stSel" aria-label="Choose member"><option value="">Choose member...</option>${S.members.map(m => `<option value="${m.id}">${esc(m.name)}</option>`).join("")}</select></div></div>
+      <div class="card"><h3 class="sec">Loan book</h3><p class="hint">Total outstanding across all loans</p><b style="font-size:22px;display:block;margin-top:8px">${kes(sum(S.loans, l => loanInfo(l).outstanding))}</b></div></div>`,
+    after() { $("#stSel").addEventListener("change", e => { if (e.target.value) act("statement", e.target.value); }); }
+  };
+}
+
+function vSettings() {
+  const s = S.settings;
+  return {
+    sub: "Group rules and data tools",
+    html: `<div class="grid2" style="grid-template-columns:1fr 1fr"><div class="card"><h3 class="sec">Group rules</h3><form id="setF" class="f">
+      <div class="full"><label for="sN">Group name</label><input id="sN" value="${esc(s.name)}" maxlength="50"></div>
+      <div><label for="sR">Default interest % / year</label><input id="sR" type="number" min="0" step="0.1" value="${s.rate}"></div>
+      <div><label for="sM">Default method</label><select id="sM"><option value="reducing" ${s.method === "reducing" ? "selected" : ""}>Reducing balance</option><option value="flat" ${s.method === "flat" ? "selected" : ""}>Flat rate</option></select></div>
+      <div><label for="sX">Loan limit (× savings)</label><input id="sX" type="number" min="0" step="0.5" value="${s.multiplier}"></div>
+      <div><label for="sC">Monthly contribution (KES)</label><input id="sC" type="number" min="0" value="${s.monthly}"></div>
+      <div class="full"><button class="btn y" type="submit">Save settings</button></div></form></div>
+      <div class="card"><h3 class="sec">Data tools</h3><div class="row"><button class="btn o s" data-act="seed">Load demo data</button><button class="btn o s" data-act="backup">Download backup</button><label class="btn o s" style="margin:0">Restore backup<input type="file" accept="application/json" id="restoreF" class="sr"></label><button class="btn d s" data-act="wipe">Erase all data</button></div>
+      <p class="hint" style="margin-top:12px">Everything is stored only in this browser. Clearing browser data will remove it, so download a backup now and then.</p></div></div>`,
+    after() {
+      $("#setF").addEventListener("submit", e => { e.preventDefault(); S.settings = { name: $("#sN").value.trim() || "My Group", rate: +$("#sR").value || 0, method: $("#sM").value, multiplier: +$("#sX").value || 0, monthly: +$("#sC").value || 0 }; save(); render(); toast("Settings saved"); });
+      $("#restoreF").addEventListener("change", e => { const f = e.target.files[0]; if (!f) return; const r = new FileReader(); r.onload = () => { try { const o = JSON.parse(r.result); if (!o.members || !o.settings) throw 0; S = Object.assign(defaults(), o); save(); render(); toast("Backup restored"); } catch (x) { toast("That file is not a valid backup."); } }; r.readAsText(f); });
+    }
+  };
+}
+
+/* ---------- forms ---------- */
+const memberOpts = sel => S.members.map(m => `<option value="${m.id}" ${sel === m.id ? "selected" : ""}>${esc(m.name)}</option>`).join("");
+function memberForm(m) {
+  openDlg(m ? "Edit member" : "Add member", `<form data-form="member" data-id="${m?.id || ""}"><div class="f">
+    <div class="full"><label for="mN">Full name</label><input id="mN" value="${esc(m?.name || "")}" required maxlength="60" autocomplete="off"></div>
+    <div><label for="mP">Phone (M-Pesa)</label><input id="mP" value="${esc(m?.phone || "")}" placeholder="0712 345678" inputmode="tel" required></div>
+    <div><label for="mJ">Date joined</label><input id="mJ" type="date" value="${m?.joined || today()}" required></div></div>
+    <p class="err" id="fErr" role="alert"></p><button class="btn y" type="submit">${m ? "Save changes" : "Add member"}</button></form>`);
+}
+function contribForm(preMember) {
+  if (!S.members.length) { toast("Add a member first."); return; }
+  openDlg("Record savings", `<form data-form="contrib"><div class="f">
+    <div class="full"><label for="cMem">Member</label><select id="cMem">${memberOpts(preMember)}</select></div>
+    <div><label for="cA">Amount (KES)</label><input id="cA" type="number" min="1" value="${S.settings.monthly || ""}" required inputmode="numeric"></div>
+    <div><label for="cT">Type</label><select id="cT"><option value="savings">Savings</option><option value="shares">Shares</option><option value="fine">Fine / penalty</option></select></div>
+    <div><label for="cDt">Date</label><input id="cDt" type="date" value="${today()}" required></div>
+    <div><label for="cRef">M-Pesa reference</label><input id="cRef" placeholder="e.g. SJK4L9XQ2P" maxlength="20" style="text-transform:uppercase"></div></div>
+    <p class="hint">Fines are recorded but do not count towards savings or loan limits.</p>
+    <p class="err" id="fErr" role="alert"></p><button class="btn y" type="submit">Save entry</button></form>`);
+}
+function loanForm() {
+  if (!S.members.length) { toast("Add a member first."); return; }
+  openDlg("New loan", `<form data-form="loan"><div class="f">
+    <div class="full"><label for="lMem">Member</label><select id="lMem">${memberOpts()}</select><p class="hint" id="lLimit"></p></div>
+    <div><label for="lP">Amount (KES)</label><input id="lP" type="number" min="1" required inputmode="numeric"></div>
+    <div><label for="lN">Months</label><input id="lN" type="number" min="1" max="120" value="12" required></div>
+    <div><label for="lR">Interest % / year</label><input id="lR" type="number" min="0" step="0.1" value="${S.settings.rate}" required></div>
+    <div><label for="lM">Method</label><select id="lM"><option value="reducing" ${S.settings.method === "reducing" ? "selected" : ""}>Reducing balance</option><option value="flat" ${S.settings.method === "flat" ? "selected" : ""}>Flat rate</option></select></div>
+    <div><label for="lD">Issue date</label><input id="lD" type="date" value="${today()}" required></div>
+    <div><label for="lU">Purpose</label><input id="lU" placeholder="e.g. School fees" maxlength="60"></div>
+    <div class="full"><p class="hint" id="lPrev"></p></div>
+    <div class="full"><label class="chk"><input type="checkbox" id="lOv"> Committee approved an exception to the loan limit or an existing loan</label></div></div>
+    <p class="err" id="fErr" role="alert"></p><button class="btn y" type="submit">Issue loan</button></form>`);
+  const upd = () => {
+    const id = $("#lMem").value, sv = savingsOf(id), lim = sv * S.settings.multiplier, out = loanOutstandingOf(id);
+    $("#lLimit").textContent = `Savings ${kes(sv)}. Limit ${kes(lim)} (${S.settings.multiplier}× savings).${out > 0 ? ` Existing loan balance ${kes(out)}.` : ""}`;
+    const sc = schedule(+$("#lP").value, +$("#lR").value, +$("#lN").value, $("#lM").value, $("#lD").value || today());
+    $("#lPrev").textContent = sc.length ? `Monthly instalment about ${kes(sc[0].total)}; total payable ${kes(sum(sc, r => r.total))}.` : "";
+  };
+  $("[data-form=loan]").addEventListener("input", upd); upd();
+}
+function loanView(id) {
+  const l = S.loans.find(x => x.id === id); if (!l) return; const i = loanInfo(l);
+  const reps = S.repayments.filter(r => r.loanId === id).sort((a, b) => b.date.localeCompare(a.date));
+  openDlg(`Loan: ${mName(l.memberId)}`, `
+    <div class="sumbox"><div><small>Principal</small><b>${kes(l.principal)}</b></div><div><small>Total payable</small><b>${kes(i.payable)}</b></div><div><small>Repaid</small><b>${kes(i.repaid)}</b></div><div><small>Outstanding</small><b>${kes(i.outstanding)}</b></div></div>
+    <div class="row sp"><div>${badge(i.status)} <span class="hint">${l.months} months at ${l.rate}% ${l.method === "flat" ? "flat" : "reducing"}, issued ${fdate(l.date)}</span></div></div>
+    <div class="bar" style="margin:10px 0 16px"><i style="width:${Math.min(100, i.repaid / i.payable * 100)}%"></i></div>
+    ${i.outstanding > 0.5 ? `<form data-form="repay" data-id="${id}" class="card" style="background:var(--bg);box-shadow:none;margin-bottom:16px"><h3 class="sec">Record repayment</h3><div class="f">
+      <div><label for="rA">Amount (KES)</label><input id="rA" type="number" min="1" step="0.01" value="${Math.round(Math.min(i.outstanding, i.next ? i.next.total : i.outstanding))}" required></div>
+      <div><label for="rD">Date</label><input id="rD" type="date" value="${today()}" required></div>
+      <div class="full"><label for="rRef">M-Pesa reference</label><input id="rRef" maxlength="20" style="text-transform:uppercase"></div></div>
+      <p class="err" id="fErr" role="alert"></p><button class="btn y" type="submit">Save repayment</button></form>` : ""}
+    <h3 class="sec">Repayments</h3>${reps.length ? `<ul class="list" style="margin-bottom:16px">${reps.map(r => `<li><span>${fdate(r.date)}<small>${esc(r.ref || "No reference")}</small></span><b>${kes(r.amount)} <button class="btn s d" data-act="delRepay" data-id="${r.id}" aria-label="Delete repayment">x</button></b></li>`).join("")}</ul>` : `<p class="hint" style="margin-bottom:16px">No repayments yet.</p>`}
+    <h3 class="sec">Schedule</h3>${schedTable(i.sched)}
+    <div class="row" style="margin-top:16px"><button class="btn d s" data-act="delLoan" data-id="${id}">Delete loan</button></div>`);
+}
+function statement(id) {
+  const m = memberById(id); if (!m) return;
+  const cs = S.contributions.filter(c => c.memberId === id).sort((a, b) => a.date.localeCompare(b.date));
+  const ls = loansOf(id);
+  const html = `<div id="stBody"><div class="row sp" style="margin-bottom:6px"><div><h2 style="font-size:20px">${esc(S.settings.name)}</h2><div class="hint">Member statement, printed ${fdate(today())}</div></div></div>
+    <p><b>${esc(m.name)}</b> &middot; ${esc(m.phone)} &middot; joined ${fdate(m.joined)}</p>
+    <div class="sumbox"><div><small>Total savings</small><b>${kes(savingsOf(id))}</b></div><div><small>Loans taken</small><b>${kes(sum(ls, l => l.principal))}</b></div><div><small>Loan balance</small><b>${kes(loanOutstandingOf(id))}</b></div></div>
+    <h3 class="sec">Contributions</h3>${cs.length ? `<div class="tbl-wrap"><table><thead><tr><th>Date</th><th>Type</th><th>Reference</th><th class="n">Amount</th></tr></thead><tbody>${cs.map(c => `<tr><td>${fdate(c.date)}</td><td>${esc(c.type)}</td><td>${esc(c.ref || "-")}</td><td class="n">${kes(c.amount)}</td></tr>`).join("")}</tbody></table></div>` : '<p class="hint">None yet.</p>'}
+    <h3 class="sec" style="margin-top:16px">Loans</h3>${ls.length ? `<div class="tbl-wrap"><table><thead><tr><th>Issued</th><th class="n">Principal</th><th class="n">Repaid</th><th class="n">Balance</th><th>Status</th></tr></thead><tbody>${ls.map(l => { const i = loanInfo(l); return `<tr><td>${fdate(l.date)}</td><td class="n">${kes(l.principal)}</td><td class="n">${kes(i.repaid)}</td><td class="n">${kes(i.outstanding)}</td><td>${i.status}</td></tr>`; }).join("")}</tbody></table></div>` : '<p class="hint">No loans.</p>'}
+    <p class="hint" style="margin-top:16px">Demonstration statement generated by the DigiExperts SACCO &amp; Chama Manager demo.</p></div>`;
+  $("#printArea").innerHTML = html;
+  openDlg("Member statement", html + `<div class="row" style="margin-top:16px"><button class="btn y" data-act="print">Print / Save as PDF</button></div>`);
+  // the dialog copy has the same id; remove it so only #printArea has one
+  const dup = $("#dlgBody #stBody"); if (dup) dup.removeAttribute("id");
+}
+
+/* ---------- actions ---------- */
+function act(a, id) {
+  switch (a) {
+    case "addMember": memberForm(); break;
+    case "editMember": memberForm(memberById(id)); break;
+    case "delMember": {
+      const m = memberById(id); if (!m) break;
+      if (!confirm(`Delete ${m.name} and all their savings, loans and repayments? This cannot be undone.`)) break;
+      const lids = loansOf(id).map(l => l.id);
+      S.members = S.members.filter(x => x.id !== id); S.contributions = S.contributions.filter(c => c.memberId !== id);
+      S.loans = S.loans.filter(l => l.memberId !== id); S.repayments = S.repayments.filter(r => !lids.includes(r.loanId));
+      save(); render(); toast("Member deleted"); break; }
+    case "addContrib": contribForm(); break;
+    case "delContrib": if (confirm("Delete this entry?")) { S.contributions = S.contributions.filter(c => c.id !== id); save(); render(); toast("Entry deleted"); } break;
+    case "addLoan": loanForm(); break;
+    case "loanView": loanView(id); break;
+    case "delRepay": { const r = S.repayments.find(x => x.id === id); if (r && confirm("Delete this repayment?")) { S.repayments = S.repayments.filter(x => x.id !== id); save(); render(); loanView(r.loanId); toast("Repayment deleted"); } break; }
+    case "delLoan": if (confirm("Delete this loan and its repayments?")) { S.loans = S.loans.filter(l => l.id !== id); S.repayments = S.repayments.filter(r => r.loanId !== id); save(); closeDlg(); render(); toast("Loan deleted"); } break;
+    case "statement": statement(id); break;
+    case "print": window.print(); break;
+    case "seed": if (!S.members.length || confirm("This replaces your current data with sample data. Continue?")) { seed(); render(); toast("Demo data loaded"); } break;
+    case "wipe": if (confirm("Erase ALL data in this browser? Download a backup first if you need it.")) { S = defaults(); save(); render(); toast("All data erased"); } break;
+    case "backup": download("sacco-backup-" + today() + ".json", JSON.stringify(S, null, 2), "application/json"); break;
+    case "csv": csv(id); break;
+  }
+}
+document.addEventListener("submit", e => {
+  const f = e.target.closest("[data-form]"); if (!f) return; e.preventDefault();
+  const err = m => { $("#fErr").textContent = m; };
+  const kind = f.dataset.form;
+  if (kind === "member") {
+    const name = $("#mN").value.trim(), phone = $("#mP").value.trim(), joined = $("#mJ").value;
+    if (name.length < 3) return err("Enter the member's full name.");
+    if (!validPhone(phone)) return err("Enter a valid Kenyan phone number, e.g. 0712 345678.");
+    if (S.members.some(m => m.id !== f.dataset.id && m.phone.replace(/\D/g, "").slice(-9) === phone.replace(/\D/g, "").slice(-9))) return err("Another member already has this phone number.");
+    if (f.dataset.id) Object.assign(memberById(f.dataset.id), { name, phone, joined }); else S.members.push({ id: uid(), name, phone, joined });
+    save(); closeDlg(); render(); toast(f.dataset.id ? "Member updated" : "Member added");
+  } else if (kind === "contrib") {
+    const amount = +$("#cA").value, date = $("#cDt").value;
+    if (!(amount > 0)) return err("Enter an amount above 0.");
+    if (date > today()) return err("The date cannot be in the future.");
+    S.contributions.push({ id: uid(), memberId: $("#cMem").value, date, amount, type: $("#cT").value, ref: $("#cRef").value.trim().toUpperCase() });
+    save(); closeDlg(); render(); toast("Savings recorded");
+  } else if (kind === "loan") {
+    const memberId = $("#lMem").value, P = +$("#lP").value, n = Math.round(+$("#lN").value), rate = +$("#lR").value, ov = $("#lOv").checked;
+    if (!(P > 0)) return err("Enter the loan amount.");
+    if (!(n >= 1 && n <= 120)) return err("Months must be between 1 and 120.");
+    if (!(rate >= 0)) return err("Enter a valid interest rate.");
+    const lim = savingsOf(memberId) * S.settings.multiplier;
+    if (P > lim && !ov) return err(`Amount exceeds this member's limit of ${kes(lim)}. Tick the exception box if the committee approved it.`);
+    if (loanOutstandingOf(memberId) > 0.5 && !ov) return err("This member still has an unpaid loan. Tick the exception box to continue.");
+    S.loans.push({ id: uid(), memberId, date: $("#lD").value, principal: P, rate, months: n, method: $("#lM").value, purpose: $("#lU").value.trim() });
+    save(); closeDlg(); render(); toast("Loan issued");
+  } else if (kind === "repay") {
+    const l = S.loans.find(x => x.id === f.dataset.id), i = loanInfo(l), amt = +$("#rA").value, date = $("#rD").value;
+    if (!(amt > 0)) return err("Enter the amount received.");
+    if (amt > i.outstanding + 0.5) return err(`Amount is more than the outstanding ${kes2(i.outstanding)}.`);
+    if (date < l.date) return err("Repayment cannot be before the loan was issued.");
+    S.repayments.push({ id: uid(), loanId: l.id, date, amount: amt, ref: $("#rRef").value.trim().toUpperCase() });
+    save(); render(); loanView(l.id); toast("Repayment recorded");
+  }
+});
+
+function download(name, text, type) { const a = document.createElement("a"); a.href = URL.createObjectURL(new Blob([text], { type })); a.download = name; document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(a.href), 1000); }
+function csv(which) {
+  const q = v => '"' + String(v ?? "").replace(/"/g, '""') + '"';
+  let rows;
+  if (which === "members") rows = [["Name", "Phone", "Joined", "Savings", "Loan balance"], ...S.members.map(m => [m.name, m.phone, m.joined, savingsOf(m.id), Math.round(loanOutstandingOf(m.id))])];
+  else if (which === "contributions") rows = [["Date", "Member", "Type", "Reference", "Amount"], ...S.contributions.map(c => [c.date, mName(c.memberId), c.type, c.ref, c.amount])];
+  else if (which === "loans") rows = [["Issued", "Member", "Principal", "Months", "Rate %", "Method", "Total payable", "Repaid", "Outstanding", "Status"], ...S.loans.map(l => { const i = loanInfo(l); return [l.date, mName(l.memberId), l.principal, l.months, l.rate, l.method, Math.round(i.payable), Math.round(i.repaid), Math.round(i.outstanding), i.status]; })];
+  else rows = [["Date", "Member", "Amount", "Reference"], ...S.repayments.map(r => { const l = S.loans.find(x => x.id === r.loanId); return [r.date, l ? mName(l.memberId) : "", r.amount, r.ref]; })];
+  download(`${which}-${today()}.csv`, "﻿" + rows.map(r => r.map(q).join(",")).join("\r\n"), "text/csv;charset=utf-8");
+  toast("CSV downloaded");
+}
+
+/* ---------- demo data ---------- */
+function seed() {
+  S = defaults();
+  const names = [["Wanjiru Kamau", "0712345601"], ["Brian Otieno", "0723456702"], ["Faith Mwende", "0734567803"], ["Kevin Njeru", "0745678904"], ["Mercy Achieng", "0756789005"], ["Dennis Kiprop", "0711223306"], ["Grace Wambui", "0722334407"], ["Peter Muriuki", "0733445508"]];
+  const now = new Date(), start = ymd(new Date(now.getFullYear(), now.getMonth() - 7, 5));
+  names.forEach(([name, phone]) => S.members.push({ id: uid(), name, phone, joined: start }));
+  const refs = "ABCDEFGHJKLMNPQRSTUVWXYZ0123456789"; let seedN = 7;
+  const rnd = () => { seedN = (seedN * 9301 + 49297) % 233280; return seedN / 233280; };
+  const ref = () => Array.from({ length: 10 }, () => refs[Math.floor(rnd() * refs.length)]).join("");
+  S.members.forEach((m, mi) => {
+    for (let k = 6; k >= 0; k--) {
+      if (rnd() < 0.12 && k > 0) continue; // an occasional missed month
+      const d = new Date(now.getFullYear(), now.getMonth() - k, 5 + (mi % 6)); if (ymd(d) > today()) continue;
+      S.contributions.push({ id: uid(), memberId: m.id, date: ymd(d), amount: [2000, 2000, 3000, 2500, 5000, 2000, 4000, 2000][mi], type: "savings", ref: ref() });
+    }
+  });
+  const mkLoan = (mi, P, n, back, purpose, paidShare) => {
+    const date = ymd(new Date(now.getFullYear(), now.getMonth() - back, 8));
+    const l = { id: uid(), memberId: S.members[mi].id, date, principal: P, rate: 12, months: n, method: "reducing", purpose };
+    S.loans.push(l); const sc = schedule(P, 12, n, "reducing", date);
+    sc.slice(0, paidShare).forEach(r => { if (r.due <= today()) S.repayments.push({ id: uid(), loanId: l.id, date: r.due, amount: r.total, ref: ref() }); });
+  };
+  mkLoan(0, 30000, 6, 4, "School fees", 4);   // on track
+  mkLoan(1, 20000, 6, 5, "Business stock", 2); // behind -> overdue
+  mkLoan(4, 15000, 3, 5, "Medical", 3);        // cleared
+  mkLoan(2, 40000, 12, 2, "Dairy cow", 2);     // on track
+  save();
+}
+
+/* ---------- start ---------- */
+(function init() {
+  const h = location.hash.slice(1); if (TABS.some(t => t[0] === h)) tab = h;
+  render();
+})();
+</script>
+</body>
+</html>
